@@ -1,7 +1,6 @@
-import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Star, Trash2, ImageIcon } from 'lucide-react';
+import { MoreVertical, Star, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -37,44 +36,33 @@ export function ProductCard({ product, rank, onDelete, onGrade, canModify }: Pro
   return (
     <>
     <Card className="flex flex-col transition-all hover:shadow-lg animate-in fade-in-50 duration-300">
-      <CardHeader className="p-0 relative">
-        <Badge className="absolute top-2 left-2 z-10 bg-black/50 text-white border-none text-lg font-bold w-10 h-10 flex items-center justify-center rounded-full">
-          #{rank}
-        </Badge>
-        {canModify && (
-        <div className="absolute top-2 right-2 z-10">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="h-8 w-8 bg-black/20 hover:bg-black/40 text-white border-none rounded-full">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+      <CardHeader className="p-4 relative">
+         <div className="flex justify-between items-start">
+            <Badge className="bg-black/50 text-white border-none text-lg font-bold w-10 h-10 flex items-center justify-center rounded-full">
+              #{rank}
+            </Badge>
+            {canModify && (
+            <div className="z-10">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            )}
         </div>
-        )}
-        <div className="aspect-[3/2] w-full rounded-t-lg bg-muted flex items-center justify-center">
-        {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              width={600}
-              height={400}
-              className="aspect-[3/2] w-full rounded-t-lg object-cover"
-            />
-          ) : (
-            <ImageIcon className="h-16 w-16 text-muted-foreground" />
-          )}
-        </div>
+        <CardTitle className="text-lg font-headline pt-2">{product.name}</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 flex-grow">
-        <CardTitle className="text-lg font-headline">{product.name}</CardTitle>
-        {product.description && <CardDescription className="mt-2 text-sm line-clamp-2">{product.description}</CardDescription>}
+      <CardContent className="p-4 pt-0 flex-grow">
+        {product.description && <CardDescription className="text-sm line-clamp-3">{product.description}</CardDescription>}
       </CardContent>
       <CardFooter className="p-4 pt-0 flex flex-col items-start gap-2">
         <div className="flex justify-between w-full text-sm text-muted-foreground">

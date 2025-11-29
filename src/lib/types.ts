@@ -10,7 +10,6 @@ export interface Product {
   categoryId: string;
   name:string;
   description?: string;
-  imageUrl?: string;
   userId: string;
 }
 
