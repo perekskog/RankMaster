@@ -32,10 +32,7 @@ export function LoginDialog({ isOpen, onOpenChange, onLogin }: LoginDialogProps)
 
   useEffect(() => {
     if (isOpen) {
-      form.reset({
-        email: '',
-        password: '',
-      });
+      form.reset();
     }
   }, [isOpen, form]);
 
