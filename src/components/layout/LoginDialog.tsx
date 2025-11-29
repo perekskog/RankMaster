@@ -58,7 +58,7 @@ export function LoginDialog({ isOpen, onOpenChange, onLogin }: LoginDialogProps)
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="per@example.com" {...field} />
+                    <Input type="email" placeholder="user@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -71,7 +71,7 @@ export function LoginDialog({ isOpen, onOpenChange, onLogin }: LoginDialogProps)
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="sPrngrta" {...field} />
+                    <Input type="password" placeholder="password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

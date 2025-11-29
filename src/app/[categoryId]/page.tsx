@@ -36,7 +36,7 @@ const calculateScores = (products: WithId<Product>[], gradedRanks: WithId<Graded
   }).sort((a, b) => b.score - a.score);
 };
 
-export default function CategoryPage({ params }: { params: { categoryId: string } }) {
+export default function CategoryPage({ params: { categoryId } }: { params: { categoryId: string } }) {
   const { toast } = useToast();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
@@ -44,16 +44,16 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
   const [isProductDialogOpen, setProductDialogOpen] = useState(false);
   const [isCompareDialogOpen, setCompareDialogOpen] = useState(false);
   
-  const categoryRef = useMemoFirebase(() => doc(firestore, 'categories', params.categoryId), [firestore, params.categoryId]);
+  const categoryRef = useMemoFirebase(() => doc(firestore, 'categories', categoryId), [firestore, categoryId]);
   const { data: category, isLoading: categoryLoading } = useDoc<Category>(categoryRef);
 
-  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products'), where('categoryId', '==', params.categoryId)), [firestore, params.categoryId]);
+  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products'), where('categoryId', '==', categoryId)), [firestore, categoryId]);
   const { data: products, isLoading: productsLoading } = useCollection<Product>(productsQuery);
   
-  const gradedRanksQuery = useMemoFirebase(() => query(collection(firestore, 'gradedRankings'), where('categoryId', '==', params.categoryId)), [firestore, params.categoryId]);
+  const gradedRanksQuery = useMemoFirebase(() => query(collection(firestore, 'gradedRankings'), where('categoryId', '==', categoryId)), [firestore, categoryId]);
   const { data: gradedRanks, isLoading: gradedRanksLoading } = useCollection<GradedRank>(gradedRanksQuery);
   
-  const comparativeRanksQuery = useMemoFirebase(() => query(collection(firestore, 'comparativeRankings'), where('categoryId', '==', params.categoryId)), [firestore, params.categoryId]);
+  const comparativeRanksQuery = useMemoFirebase(() => query(collection(firestore, 'comparativeRankings'), where('categoryId', '==', categoryId)), [firestore, categoryId]);
   const { data: comparativeRanks, isLoading: comparativeRanksLoading } = useCollection<ComparativeRank>(comparativeRanksQuery);
 
   const rankedProducts = useMemo(() => {
@@ -65,7 +65,7 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
     const newProduct: Product = {
       ...productData,
       id: newId,
-      categoryId: params.categoryId
+      categoryId: categoryId
     };
     const docRef = doc(firestore, 'products', newId);
     setDocumentNonBlocking(docRef, newProduct, { merge: true });
@@ -99,7 +99,7 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
     const newGrade: GradedRank = {
         id: newId,
         productId,
-        categoryId: params.categoryId,
+        categoryId: categoryId,
         rank
     };
     const docRef = doc(firestore, 'gradedRankings', newId);
@@ -113,7 +113,7 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
     const newId = doc(collection(firestore, 'comparativeRankings')).id;
     const newComparison: ComparativeRank = {
         id: newId,
-        categoryId: params.categoryId,
+        categoryId: categoryId,
         winnerProductId: winnerId,
         loserProductId: loserId,
     };
