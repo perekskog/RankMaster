@@ -24,10 +24,7 @@ export function initiateEmailSignUp(authInstance: Auth, email: string, password:
 /** Initiate email/password sign-in (non-blocking). */
 export function initiateEmailSignIn(authInstance: Auth, email: string, password: string, onError?: (error: any) => void): void {
   signInWithEmailAndPassword(authInstance, email, password).catch(error => {
-    if (error.code === 'auth/user-not-found') {
-      // If user doesn't exist, create them.
-      createUserWithEmailAndPassword(authInstance, email, password).catch(onError);
-    } else if (onError) {
+    if (onError) {
       onError(error);
     } else {
         console.error("Login failed:", error.message);
