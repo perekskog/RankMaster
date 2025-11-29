@@ -4,7 +4,7 @@
 import { Trophy, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth, useUser } from '@/firebase/provider';
-import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
+import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
 import { Button } from '@/components/ui/button';
 import { signOut } from 'firebase/auth';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -22,7 +22,9 @@ export default function Header() {
   const { user, isUserLoading } = useUser();
 
   const handleSignIn = () => {
-    initiateAnonymousSignIn(auth);
+    // Note: In a real app, you would get these from a form.
+    // We are creating a new user here if one doesn't exist for simplicity.
+    initiateEmailSignIn(auth, 'test@example.com', 'password');
   };
 
   const handleSignOut = () => {
