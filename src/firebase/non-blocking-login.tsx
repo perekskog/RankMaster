@@ -22,16 +22,15 @@ export function initiateEmailSignUp(authInstance: Auth, email: string, password:
 }
 
 /** Initiate email/password sign-in (non-blocking). */
-export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): void {
-  // CRITICAL: Call signInWithEmailAndPassword directly. Do NOT use 'await signInWithEmailAndPassword(...)'.
+export function initiateEmailSignIn(authInstance: Auth, email: string, password: string, onError?: (error: any) => void): void {
   signInWithEmailAndPassword(authInstance, email, password).catch(error => {
-    // If sign in fails, we can handle specific errors here, but we will not create a new user.
-    // For example, you might want to show a toast notification for 'auth/user-not-found'
-    // but for now, we'll just log it to the console for debugging.
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-      console.error("Login failed:", error.message);
-      // In a real app, you would show a user-facing error message here.
+    if (error.code === 'auth/user-not-found') {
+      // If user doesn't exist, create them.
+      createUserWithEmailAndPassword(authInstance, email, password).catch(onError);
+    } else if (onError) {
+      onError(error);
+    } else {
+        console.error("Login failed:", error.message);
     }
   });
-  // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
 }

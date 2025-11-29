@@ -25,14 +25,17 @@ export function LoginDialog({ isOpen, onOpenChange, onLogin }: LoginDialogProps)
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: 'per@example.com',
+      password: 'sPrngrta',
     },
   });
 
   useEffect(() => {
     if (isOpen) {
-      form.reset();
+      form.reset({
+        email: 'per@example.com',
+        password: 'sPrngrta',
+      });
     }
   }, [isOpen, form]);
 
@@ -46,7 +49,7 @@ export function LoginDialog({ isOpen, onOpenChange, onLogin }: LoginDialogProps)
         <DialogHeader>
           <DialogTitle>Sign In</DialogTitle>
           <DialogDescription>
-            Enter your credentials to sign in. If you don't have an account, one will be created for you.
+            Enter your credentials to sign in.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

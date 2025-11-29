@@ -18,14 +18,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
 import { LoginDialog } from './LoginDialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Header() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const [isLoginDialogOpen, setLoginDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleSignIn = (email: string, password: string) => {
-    initiateEmailSignIn(auth, email, password);
+    initiateEmailSignIn(auth, email, password, (error) => {
+        toast({
+            title: "Login Failed",
+            description: error.message,
+            variant: "destructive"
+        })
+    });
     setLoginDialogOpen(false);
   };
 
