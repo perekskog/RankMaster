@@ -25,16 +25,16 @@ export function LoginDialog({ isOpen, onOpenChange, onLogin }: LoginDialogProps)
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'per@example.com',
-      password: 'sPrngrta',
+      email: '',
+      password: '',
     },
   });
 
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        email: 'per@example.com',
-        password: 'sPrngrta',
+        email: '',
+        password: '',
       });
     }
   }, [isOpen, form]);
