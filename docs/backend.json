@@ -49,6 +49,10 @@
           "type": "string",
           "description": "Text description of the product."
         },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of an optional image for the product."
+        },
         "userId": {
           "type": "string",
           "description": "ID of the user who owns this product."
