@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "p9p",
+      "description": "Google Pixel 9 Pro",
+      "imageUrl": "https://images.unsplash.com/photo-1614734421799-e422841a60b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8c21hcnRwaG9uZSUyMGdvb2dsZXxlbnwwfHx8fDE3NjQ0MzI0NTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone google"
+    },
+    {
+      "id": "i16p",
+      "description": "iPhone 16 Pro",
+      "imageUrl": "https://images.unsplash.com/photo-1634965209873-d8c8cbafa8fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzbWFydHBob25lJTIwYXBwbGV8ZW58MHx8fHwxNzY0NDMyNDU4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone apple"
+    },
+    {
+      "id": "s25u",
+      "description": "Samsung Galaxy S25 Ultra",
+      "imageUrl": "https://images.unsplash.com/photo-1565312088140-3e3c5d9fae4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzbWFydHBob25lJTIwc2Ftc3VuZ3xlbnwwfHx8fDE3NjQ0MzI0NTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone samsung"
+    },
+    {
+      "id": "mbp4",
+      "description": "MacBook Pro M4",
+      "imageUrl": "https://images.unsplash.com/photo-1642670350252-6eef1a5c0ac7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bGFwdG9wJTIwYXBwbGV8ZW58MHx8fHwxNzY0NDMyNDU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop apple"
+    },
+    {
+      "id": "xps15",
+      "description": "Dell XPS 15",
+      "imageUrl": "https://images.unsplash.com/photo-1620843002805-05a08cb72f57?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsYXB0b3AlMjB3aW5kb3dzfGVufDB8fHx8MTc2NDQzMjQ1OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop windows"
+    },
+    {
+      "id": "default",
+      "description": "Default product image",
+      "imageUrl": "https://images.unsplash.com/photo-1632222683609-53cd751c2937?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwcm9kdWN0JTIwcGhvdG98ZW58MHx8fHwxNzY0MzUwMzY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product photo"
+    }
+  ]
 }
