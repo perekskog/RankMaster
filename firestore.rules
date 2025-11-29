@@ -13,8 +13,13 @@ service cloud.firestore {
     }
 
     match /products/{productId} {
+      // Allow reading single products and the entire collection
       allow read: if true;
       allow write: if isSignedIn();
+    }
+    
+    match /products/{wildcard=**} {
+      allow read: if true;
     }
 
     match /gradedRankings/{rankingId} {
