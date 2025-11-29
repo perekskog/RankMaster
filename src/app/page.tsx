@@ -7,8 +7,8 @@ import type { Category, Product } from '@/lib/types';
 import CategoryList from '@/components/categories/CategoryList';
 import { CategoryDialog } from '@/components/categories/CategoryDialog';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, doc, writeBatch } from 'firebase/firestore';
-import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { collection, doc, query, where } from 'firebase/firestore';
+import { setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useUser } from '@/firebase/provider';
 
 export default function Home() {
@@ -18,11 +18,15 @@ export default function Home() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
 
-  const categoriesRef = useMemoFirebase(() => collection(firestore, 'categories'), [firestore]);
-  const { data: categories, isLoading: categoriesLoading } = useCollection<Category>(categoriesRef);
+  const categoriesQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'categories'), where('userId', '==', user.uid)) : null
+  , [firestore, user]);
+  const { data: categories, isLoading: categoriesLoading } = useCollection<Category>(categoriesQuery);
 
-  const productsRef = useMemoFirebase(() => collection(firestore, 'products'), [firestore]);
-  const { data: products, isLoading: productsLoading } = useCollection<Product>(productsRef);
+  const productsQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'products'), where('userId', '==', user.uid)) : null
+  , [firestore, user]);
+  const { data: products, isLoading: productsLoading } = useCollection<Product>(productsQuery);
 
   const categoriesWithProductCount = useMemo(() => {
     if (!categories || !products) return [];
@@ -48,16 +52,17 @@ export default function Home() {
     deleteDocumentNonBlocking(docRef);
   };
   
-  const handleSaveCategory = (categoryData: Omit<Category, 'id'> & { id?: string }) => {
-    if (!firestore) return;
+  const handleSaveCategory = (categoryData: Omit<Category, 'id' | 'userId'> & { id?: string }) => {
+    if (!firestore || !user) return;
     if (categoryData.id) {
       const docRef = doc(firestore, 'categories', categoryData.id);
-      setDocumentNonBlocking(docRef, categoryData, { merge: true });
+      setDocumentNonBlocking(docRef, { ...categoryData, userId: user.uid }, { merge: true });
     } else {
       const newId = doc(collection(firestore, 'categories')).id;
       const newCategory: Category = {
         ...categoryData,
         id: newId,
+        userId: user.uid,
       };
       const docRef = doc(firestore, 'categories', newId);
       setDocumentNonBlocking(docRef, newCategory, { merge: true });
@@ -76,10 +81,11 @@ export default function Home() {
       
       <CategoryList 
         categories={categoriesWithProductCount}
-        loading={categoriesLoading || productsLoading}
+        loading={isUserLoading || (!!user && (categoriesLoading || productsLoading))}
         onEdit={handleEditCategory}
         onDelete={handleDeleteCategory}
         canModify={!!user}
+        isLoggedIn={!!user}
       />
       
       <CategoryDialog

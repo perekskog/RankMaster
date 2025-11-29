@@ -16,11 +16,16 @@
         "description": {
           "type": "string",
           "description": "A short description of the category."
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID of the user who owns this category."
         }
       },
       "required": [
         "id",
-        "name"
+        "name",
+        "userId"
       ]
     },
     "Product": {
@@ -52,12 +57,17 @@
         "imageHint": {
           "type": "string",
           "description": "Hint for AI to find a better image."
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID of the user who owns this product."
         }
       },
       "required": [
         "id",
         "categoryId",
-        "name"
+        "name",
+        "userId"
       ]
     },
     "GradedRank": {
@@ -80,13 +90,18 @@
         "rank": {
           "type": "number",
           "description": "The grade given to the product."
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID of the user who created this ranking."
         }
       },
       "required": [
         "id",
         "productId",
         "categoryId",
-        "rank"
+        "rank",
+        "userId"
       ]
     },
     "ComparativeRank": {
@@ -109,13 +124,18 @@
         "loserProductId": {
           "type": "string",
           "description": "ID of the losing product."
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID of the user who created this ranking."
         }
       },
       "required": [
         "id",
         "categoryId",
         "winnerProductId",
-        "loserProductId"
+        "loserProductId",
+        "userId"
       ]
     },
     "ProductRank": {
@@ -138,13 +158,18 @@
         "score": {
           "type": "number",
           "description": "The combined ranking score."
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID of the user who owns this rank data."
         }
       },
       "required": [
         "id",
         "categoryId",
         "productId",
-        "score"
+        "score",
+        "userId"
       ]
     }
   },

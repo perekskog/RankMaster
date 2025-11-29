@@ -19,8 +19,8 @@ type CategoryFormData = z.infer<typeof categorySchema>;
 interface CategoryDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSave: (data: Omit<Category, 'id'> & { id?: string }) => void;
-  category: Category | null;
+  onSave: (data: Omit<Category, 'id' | 'userId'> & { id?: string }) => void;
+  category: Omit<Category, 'userId'> | null;
 }
 
 export function CategoryDialog({ isOpen, onOpenChange, onSave, category }: CategoryDialogProps) {

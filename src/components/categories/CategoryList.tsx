@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, LogIn } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState } from 'react';
@@ -18,9 +18,10 @@ interface CategoryListProps {
   onEdit: (category: Category) => void;
   onDelete: (categoryId: string) => void;
   canModify: boolean;
+  isLoggedIn: boolean;
 }
 
-export default function CategoryList({ categories, loading, onEdit, onDelete, canModify }: CategoryListProps) {
+export default function CategoryList({ categories, loading, onEdit, onDelete, canModify, isLoggedIn }: CategoryListProps) {
   const [deletingCategory, setDeletingCategory] = useState<CategoryWithCount | null>(null);
 
   if (loading) {
@@ -38,6 +39,16 @@ export default function CategoryList({ categories, loading, onEdit, onDelete, ca
             </CardFooter>
           </Card>
         ))}
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className="text-center py-16 border-2 border-dashed rounded-lg bg-card">
+        <LogIn className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h2 className="text-xl font-semibold mt-4">Please Sign In</h2>
+        <p className="text-muted-foreground mt-2">Sign in to manage your categories.</p>
       </div>
     );
   }

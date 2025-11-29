@@ -1,6 +1,7 @@
 import { ProductCard } from './ProductCard';
 import type { Product, WithId } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LogIn } from 'lucide-react';
 
 
 interface RankedProduct extends WithId<Product> {
@@ -16,9 +17,10 @@ interface ProductListProps {
   onDelete: (productId: string) => void;
   onGrade: (productId: string, rank: number) => void;
   canModify: boolean;
+  isLoggedIn: boolean;
 }
 
-export function ProductList({ products, loading, onDelete, onGrade, canModify }: ProductListProps) {
+export function ProductList({ products, loading, onDelete, onGrade, canModify, isLoggedIn }: ProductListProps) {
   if (loading) {
     return (
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -28,10 +30,20 @@ export function ProductList({ products, loading, onDelete, onGrade, canModify }:
       </div>
     )
   }
+  
+  if (!isLoggedIn) {
+     return (
+      <div className="text-center py-16 border-2 border-dashed rounded-lg bg-card col-span-full">
+        <LogIn className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h2 className="text-xl font-semibold mt-4">Please Sign In</h2>
+        <p className="text-muted-foreground mt-2">Sign in to see and rank products.</p>
+      </div>
+    );
+  }
 
   if (products.length === 0) {
     return (
-      <div className="text-center py-16 border-2 border-dashed rounded-lg bg-card">
+      <div className="text-center py-16 border-2 border-dashed rounded-lg bg-card col-span-full">
         <h2 className="text-xl font-semibold">No Products Yet</h2>
         <p className="text-muted-foreground mt-2">Click "Add Product" to populate this category.</p>
       </div>

@@ -21,7 +21,7 @@ type ProductFormData = z.infer<typeof productSchema>;
 interface ProductDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSave: (data: Omit<Product, 'id' | 'categoryId'> & { id?: string }) => void;
+  onSave: (data: Omit<Product, 'id' | 'categoryId' | 'userId'> & { id?: string }) => void;
 }
 
 export function ProductDialog({ isOpen, onOpenChange, onSave }: ProductDialogProps) {

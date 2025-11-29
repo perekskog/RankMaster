@@ -2,6 +2,7 @@ export interface Category {
   id: string;
   name: string;
   description?: string;
+  userId: string;
 }
 
 export interface Product {
@@ -11,6 +12,7 @@ export interface Product {
   description?: string;
   imageUrl?: string;
   imageHint?: string;
+  userId: string;
 }
 
 export interface GradedRank {
@@ -18,6 +20,7 @@ export interface GradedRank {
   productId: string;
   categoryId: string;
   rank: number;
+  userId: string;
 }
 
 export interface ComparativeRank {
@@ -25,6 +28,7 @@ export interface ComparativeRank {
   categoryId: string;
   winnerProductId: string;
   loserProductId: string;
+  userId: string;
 }
 
 // Helper type for data from Firestore

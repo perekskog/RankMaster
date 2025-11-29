@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, PlusCircle, Scale } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Scale, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductList } from '@/components/products/ProductList';
 import { ProductDialog } from '@/components/products/ProductDialog';
@@ -45,28 +45,39 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
   const [isProductDialogOpen, setProductDialogOpen] = useState(false);
   const [isCompareDialogOpen, setCompareDialogOpen] = useState(false);
   
-  const categoryRef = useMemoFirebase(() => doc(firestore, 'categories', categoryId), [firestore, categoryId]);
+  const categoryRef = useMemoFirebase(() => 
+    user ? doc(firestore, 'categories', categoryId) : null, 
+  [firestore, categoryId, user]);
   const { data: category, isLoading: categoryLoading } = useDoc<Category>(categoryRef);
 
-  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products'), where('categoryId', '==', categoryId)), [firestore, categoryId]);
+  const productsQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'products'), where('categoryId', '==', categoryId), where('userId', '==', user.uid)) : null,
+  [firestore, categoryId, user]);
   const { data: products, isLoading: productsLoading } = useCollection<Product>(productsQuery);
   
-  const gradedRanksQuery = useMemoFirebase(() => query(collection(firestore, 'gradedRankings'), where('categoryId', '==', categoryId)), [firestore, categoryId]);
+  const gradedRanksQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'gradedRankings'), where('categoryId', '==', categoryId), where('userId', '==', user.uid)) : null,
+  [firestore, categoryId, user]);
   const { data: gradedRanks, isLoading: gradedRanksLoading } = useCollection<GradedRank>(gradedRanksQuery);
   
-  const comparativeRanksQuery = useMemoFirebase(() => query(collection(firestore, 'comparativeRankings'), where('categoryId', '==', categoryId)), [firestore, categoryId]);
+  const comparativeRanksQuery = useMemoFirebase(() => 
+    user ? query(collection(firestore, 'comparativeRankings'), where('categoryId', '==', categoryId), where('userId', '==', user.uid)) : null,
+  [firestore, categoryId, user]);
   const { data: comparativeRanks, isLoading: comparativeRanksLoading } = useCollection<ComparativeRank>(comparativeRanksQuery);
 
   const rankedProducts = useMemo(() => {
+    if (!user) return [];
     return calculateScores(products || [], gradedRanks || [], comparativeRanks || []);
-  }, [products, gradedRanks, comparativeRanks]);
+  }, [products, gradedRanks, comparativeRanks, user]);
 
-  const handleSaveProduct = (productData: Omit<Product, 'id' | 'categoryId'> & { id?: string }) => {
+  const handleSaveProduct = (productData: Omit<Product, 'id' | 'categoryId' | 'userId'> & { id?: string }) => {
+    if (!user) return;
     const newId = doc(collection(firestore, 'products')).id;
     const newProduct: Product = {
       ...productData,
       id: newId,
-      categoryId: categoryId
+      categoryId: categoryId,
+      userId: user.uid,
     };
     const docRef = doc(firestore, 'products', newId);
     setDocumentNonBlocking(docRef, newProduct, { merge: true });
@@ -80,15 +91,7 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
     const productDocRef = doc(firestore, 'products', productId);
     batch.delete(productDocRef);
     
-    const gradedRanksToDeleteQuery = query(collection(firestore, 'gradedRankings'), where('productId', '==', productId));
-    const comparativeRanksToDeleteQuery1 = query(collection(firestore, 'comparativeRankings'), where('winnerProductId', '==', productId));
-    const comparativeRanksToDeleteQuery2 = query(collection(firestore, 'comparativeRankings'), where('loserProductId', '==', productId));
-    
-    // In a real app, you would fetch these documents and then delete them.
-    // For this prototype, we'll assume the on-device cache reflects the state and this deletion will be reflected.
-    // The useCollection hooks will update the UI.
-    // This is a simplification. A more robust solution would involve a Cloud Function for cascading deletes.
-
+    // This is a simplified deletion. In a real app, use a Cloud Function for cascading deletes.
     const productName = products?.find(p => p.id === productId)?.name;
     toast({ title: "Product Deletion Initiated", description: `"${productName}" is being removed.`, variant: 'destructive' });
 
@@ -96,12 +99,14 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
   };
 
   const handleGradeProduct = (productId: string, rank: number) => {
+    if (!user) return;
     const newId = doc(collection(firestore, 'gradedRankings')).id;
     const newGrade: GradedRank = {
         id: newId,
         productId,
         categoryId: categoryId,
-        rank
+        rank,
+        userId: user.uid
     };
     const docRef = doc(firestore, 'gradedRankings', newId);
     setDocumentNonBlocking(docRef, newGrade, { merge: true });
@@ -111,12 +116,14 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
   };
   
   const handleCompareProducts = (winnerId: string, loserId: string) => {
+    if (!user) return;
     const newId = doc(collection(firestore, 'comparativeRankings')).id;
     const newComparison: ComparativeRank = {
         id: newId,
         categoryId: categoryId,
         winnerProductId: winnerId,
         loserProductId: loserId,
+        userId: user.uid,
     };
     const docRef = doc(firestore, 'comparativeRankings', newId);
     setDocumentNonBlocking(docRef, newComparison, { merge: true });
@@ -127,7 +134,7 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
     setCompareDialogOpen(false);
   };
 
-  const isLoading = categoryLoading || productsLoading || gradedRanksLoading || comparativeRanksLoading;
+  const isLoading = isUserLoading || (!!user && (categoryLoading || productsLoading || gradedRanksLoading || comparativeRanksLoading));
 
   if (isLoading && !category) {
     return (
@@ -136,11 +143,25 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
         </div>
     )
   }
+  
+  if (!isUserLoading && !user) {
+    return (
+       <div className="container text-center py-10">
+          <LogIn className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h2 className="text-xl font-semibold mt-4">Please Sign In</h2>
+          <p className="text-muted-foreground mt-2 mb-4">Sign in to view and rank products.</p>
+           <Button asChild variant="link">
+            <Link href="/">Back to Categories</Link>
+          </Button>
+      </div>
+    )
+  }
 
   if (!category && !categoryLoading) {
     return (
       <div className="container text-center py-10">
         <h2 className="text-2xl font-bold">Category not found</h2>
+        <p className="text-muted-foreground mt-1">This category may not exist or you may not have permission to view it.</p>
         <Button asChild variant="link" className="mt-4">
           <Link href="/">Go back to categories</Link>
         </Button>
@@ -179,6 +200,7 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
         onDelete={handleDeleteProduct}
         onGrade={handleGradeProduct}
         canModify={!!user}
+        isLoggedIn={!!user}
       />
       
       <ProductDialog
