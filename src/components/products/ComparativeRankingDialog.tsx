@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Trophy } from 'lucide-react';
-import type { Product } from '@/lib/types';
+import type { Product, WithId } from '@/lib/types';
 
 interface ComparativeRankingDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  products: Product[];
+  products: WithId<Product>[];
   onCompare: (winnerId: string, loserId: string) => void;
 }
 

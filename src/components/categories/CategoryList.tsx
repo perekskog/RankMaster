@@ -6,6 +6,7 @@ import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CategoryWithCount extends Category {
   productCount: number;
@@ -13,12 +14,33 @@ interface CategoryWithCount extends Category {
 
 interface CategoryListProps {
   categories: CategoryWithCount[];
+  loading: boolean;
   onEdit: (category: Category) => void;
   onDelete: (categoryId: string) => void;
+  canModify: boolean;
 }
 
-export default function CategoryList({ categories, onEdit, onDelete }: CategoryListProps) {
+export default function CategoryList({ categories, loading, onEdit, onDelete, canModify }: CategoryListProps) {
   const [deletingCategory, setDeletingCategory] = useState<CategoryWithCount | null>(null);
+
+  if (loading) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader>
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-1/2 mt-2" />
+            </CardHeader>
+            <CardFooter className="flex justify-between">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-8 w-24" />
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   if (categories.length === 0) {
     return (
@@ -40,6 +62,7 @@ export default function CategoryList({ categories, onEdit, onDelete }: CategoryL
                   <CardTitle className="text-xl font-headline">{category.name}</CardTitle>
                   {category.description && <CardDescription className="mt-2">{category.description}</CardDescription>}
                 </div>
+                {canModify && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
@@ -61,6 +84,7 @@ export default function CategoryList({ categories, onEdit, onDelete }: CategoryL
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                )}
               </div>
             </CardHeader>
             <CardFooter className="flex justify-between items-center">

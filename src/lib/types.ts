@@ -14,11 +14,18 @@ export interface Product {
 }
 
 export interface GradedRank {
+  id: string;
   productId: string;
+  categoryId: string;
   rank: number;
 }
 
 export interface ComparativeRank {
+  id: string;
+  categoryId: string;
   winnerProductId: string;
   loserProductId: string;
 }
+
+// Helper type for data from Firestore
+export type WithId<T> = T & { id: string };

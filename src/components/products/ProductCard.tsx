@@ -7,11 +7,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { GradedRanking } from './GradedRanking';
 import { Badge } from '@/components/ui/badge';
-import type { Product } from '@/lib/types';
+import type { Product, WithId } from '@/lib/types';
 import { useState } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-interface RankedProduct extends Product {
+interface RankedProduct extends WithId<Product> {
   score: number;
   avgGrade: string;
   wins: number;
@@ -23,9 +23,10 @@ interface ProductCardProps {
   rank: number;
   onDelete: (productId: string) => void;
   onGrade: (productId:string, rank: number) => void;
+  canModify: boolean;
 }
 
-export function ProductCard({ product, rank, onDelete, onGrade }: ProductCardProps) {
+export function ProductCard({ product, rank, onDelete, onGrade, canModify }: ProductCardProps) {
   const [isGradePopoverOpen, setGradePopoverOpen] = useState(false);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -43,6 +44,7 @@ export function ProductCard({ product, rank, onDelete, onGrade }: ProductCardPro
         <Badge className="absolute top-2 left-2 z-10 bg-black/50 text-white border-none text-lg font-bold w-10 h-10 flex items-center justify-center rounded-full">
           #{rank}
         </Badge>
+        {canModify && (
         <div className="absolute top-2 right-2 z-10">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -58,6 +60,7 @@ export function ProductCard({ product, rank, onDelete, onGrade }: ProductCardPro
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        )}
         <Image
           src={product.imageUrl || defaultImage?.imageUrl || ''}
           alt={product.name}
@@ -78,7 +81,7 @@ export function ProductCard({ product, rank, onDelete, onGrade }: ProductCardPro
         </div>
         <Popover open={isGradePopoverOpen} onOpenChange={setGradePopoverOpen}>
           <PopoverTrigger asChild>
-            <Button className="w-full" variant="outline">
+            <Button className="w-full" variant="outline" disabled={!canModify}>
               <Star className="mr-2 h-4 w-4 text-accent fill-accent" />
               Grade Product
             </Button>
