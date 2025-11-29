@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Star, Trash2 } from 'lucide-react';
+import { MoreVertical, Star, Trash2, ImageIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -9,7 +9,6 @@ import { GradedRanking } from './GradedRanking';
 import { Badge } from '@/components/ui/badge';
 import type { Product, WithId } from '@/lib/types';
 import { useState } from 'react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface RankedProduct extends WithId<Product> {
   score: number;
@@ -35,8 +34,6 @@ export function ProductCard({ product, rank, onDelete, onGrade, canModify }: Pro
     setGradePopoverOpen(false);
   }
   
-  const defaultImage = PlaceHolderImages.find(img => img.id === 'default');
-  
   return (
     <>
     <Card className="flex flex-col transition-all hover:shadow-lg animate-in fade-in-50 duration-300">
@@ -61,14 +58,19 @@ export function ProductCard({ product, rank, onDelete, onGrade, canModify }: Pro
           </DropdownMenu>
         </div>
         )}
-        <Image
-          src={product.imageUrl || defaultImage?.imageUrl || ''}
-          alt={product.name}
-          width={600}
-          height={400}
-          className="aspect-[3/2] w-full rounded-t-lg object-cover bg-muted"
-          data-ai-hint={product.imageHint || 'product photo'}
-        />
+        <div className="aspect-[3/2] w-full rounded-t-lg bg-muted flex items-center justify-center">
+        {product.imageUrl ? (
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              width={600}
+              height={400}
+              className="aspect-[3/2] w-full rounded-t-lg object-cover"
+            />
+          ) : (
+            <ImageIcon className="h-16 w-16 text-muted-foreground" />
+          )}
+        </div>
       </CardHeader>
       <CardContent className="p-4 flex-grow">
         <CardTitle className="text-lg font-headline">{product.name}</CardTitle>

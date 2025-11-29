@@ -11,7 +11,6 @@ export interface Product {
   name:string;
   description?: string;
   imageUrl?: string;
-  imageHint?: string;
   userId: string;
 }
 

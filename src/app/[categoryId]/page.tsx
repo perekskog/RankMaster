@@ -9,9 +9,10 @@ import { ProductDialog } from '@/components/products/ProductDialog';
 import { ComparativeRankingDialog } from '@/components/products/ComparativeRankingDialog';
 import type { Category, Product, GradedRank, ComparativeRank, WithId } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore, useCollection, useDoc, useMemoFirebase, useUser } from '@/firebase';
+import { useFirestore, useCollection, useDoc, useMemoFirebase, useUser, useStorage } from '@/firebase';
 import { collection, doc, query, where, writeBatch } from 'firebase/firestore';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { uploadFile } from '@/firebase/storage';
 
 const calculateScores = (products: WithId<Product>[], gradedRanks: WithId<GradedRank>[], comparativeRanks: WithId<ComparativeRank>[]) => {
   if (!products) return [];
@@ -40,6 +41,7 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
   const { categoryId } = params;
   const { toast } = useToast();
   const firestore = useFirestore();
+  const storage = useStorage();
   const { user, isUserLoading } = useUser();
 
   const [isProductDialogOpen, setProductDialogOpen] = useState(false);
@@ -70,18 +72,35 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
     return calculateScores(products || [], gradedRanks || [], comparativeRanks || []);
   }, [products, gradedRanks, comparativeRanks, user]);
 
-  const handleSaveProduct = (productData: Omit<Product, 'id' | 'categoryId' | 'userId'> & { id?: string }) => {
+  const handleSaveProduct = async (productData: Omit<Product, 'id' | 'categoryId' | 'userId' | 'imageUrl'> & { id?: string; imageFile?: File }) => {
     if (!user) return;
+    
+    setProductDialogOpen(false);
+    toast({ title: "Adding Product...", description: `Adding "${productData.name}".` });
+
+    let imageUrl: string | undefined = undefined;
+    if (productData.imageFile) {
+        try {
+            const filePath = `products/${user.uid}/${Date.now()}_${productData.imageFile.name}`;
+            imageUrl = await uploadFile(storage, productData.imageFile, filePath);
+        } catch (error) {
+            console.error("Image upload failed:", error);
+            toast({ title: "Image Upload Failed", description: "Could not upload the product image.", variant: "destructive" });
+            return;
+        }
+    }
+
     const newId = doc(collection(firestore, 'products')).id;
     const newProduct: Product = {
-      ...productData,
+      name: productData.name,
+      description: productData.description,
       id: newId,
       categoryId: categoryId,
       userId: user.uid,
+      imageUrl,
     };
     const docRef = doc(firestore, 'products', newId);
     setDocumentNonBlocking(docRef, newProduct, { merge: true });
-    setProductDialogOpen(false);
     toast({ title: "Product Added", description: `"${newProduct.name}" has been added.` });
   };
   
@@ -91,7 +110,6 @@ export default function CategoryPage({ params }: { params: { categoryId: string 
     const productDocRef = doc(firestore, 'products', productId);
     batch.delete(productDocRef);
     
-    // This is a simplified deletion. In a real app, use a Cloud Function for cascading deletes.
     const productName = products?.find(p => p.id === productId)?.name;
     toast({ title: "Product Deletion Initiated", description: `"${productName}" is being removed.`, variant: 'destructive' });
 

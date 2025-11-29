@@ -54,10 +54,6 @@
           "description": "URL of the product's picture.",
           "format": "uri"
         },
-        "imageHint": {
-          "type": "string",
-          "description": "Hint for AI to find a better image."
-        },
         "userId": {
           "type": "string",
           "description": "ID of the user who owns this product."
