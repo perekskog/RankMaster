@@ -37,8 +37,7 @@ const calculateScores = (products: WithId<Product>[], gradedRanks: WithId<Graded
   }).sort((a, b) => b.score - a.score);
 };
 
-export default function CategoryPage({ params }: { params: { categoryId: string } }) {
-  const { categoryId } = params;
+export default function CategoryPage({ params: { categoryId } }: { params: { categoryId: string } }) {
   const { toast } = useToast();
   const firestore = useFirestore();
   const storage = useStorage();
