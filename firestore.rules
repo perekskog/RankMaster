@@ -1,0 +1,132 @@
+/**
+ * Core Philosophy: This ruleset establishes a public, read-only catalog model with authenticated-only contributions.
+ * All users, including anonymous ones, can read all data (categories, products, rankings). However, only
+ * signed-in users are permitted to create new documents. This approach is ideal for prototyping a
+ * community-driven catalog where initial data seeding is encouraged.
+ *
+ * Data Structure: The data is organized hierarchically, starting with a top-level '/categories' collection.
+ * Each category document can contain a 'products' subcollection, and each product can contain
+ * 'gradedRankings' and 'comparativeRankings' subcollections. This structure provides clear, logical paths
+ * to all data entities.
+ *
+ * Key Security Decisions:
+ * - Public Read Access: All data is publicly readable ('get' and 'list') to encourage browsing and discovery.
+ * - Authenticated Writes: Only signed-in users can create new categories, products, or rankings.
+ * - No Updates or Deletes: To ensure data integrity and prevent vandalism in this initial prototype,
+ *   all 'update' and 'delete' operations are explicitly disabled. This is a secure default posture
+ *   because the current data models lack 'ownerId' or 'creatorId' fields, making it impossible to
+ *   authorize modifications safely. When an ownership model is added to the data, these rules should be revisited.
+ * - Relational Integrity: On document creation, rules validate that parent IDs stored within a document
+ *   (e.g., 'categoryId' in a product) match the document's path in the hierarchy. This prevents data inconsistency.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --------------------------------
+    // Helper Functions
+    // --------------------------------
+
+    /**
+     * @description Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description On create, validates that the document ID in the path matches the 'id' field in the new data.
+     */
+    function hasMatchingId(docId) {
+      return request.resource.data.id == docId;
+    }
+
+    /**
+     * @description On create, validates that the 'categoryId' in the new data matches the category ID from the path.
+     */
+    function belongsToCategory(categoryId) {
+      return request.resource.data.categoryId == categoryId;
+    }
+
+    /**
+     * @description On create, validates that the 'productId' in the new data matches the product ID from the path.
+     */
+    function belongsToProduct(productId) {
+      return request.resource.data.productId == productId;
+    }
+
+    /**
+     * @description For a comparative ranking, ensures the product in the path is one of the two products being compared.
+     */
+    function isPartOfComparison(productId) {
+      return request.resource.data.product1Id == productId || request.resource.data.product2Id == productId;
+    }
+
+    // The function documentExists was not used and caused a warning so it has been removed.
+
+
+    /**
+     * @description Secures the 'categories' collection.
+     * @path /categories/{categoryId}
+     * @allow (get) Any user, signed-in or not, can get a category document.
+     * @allow (create) A signed-in user creates a new category.
+     * @deny (create) An anonymous user tries to create a category.
+     * @deny (update, delete) Any user attempts to modify or delete a category.
+     * @principle Public read access for catalog data, with contribution restricted to authenticated users. Destructive operations are disabled for data integrity.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && hasMatchingId(categoryId);
+      allow update: if false; // TODO: Add owner validation once the 'Category' schema is updated with an ownership field.
+      allow delete: if false; // TODO: Add owner validation once the 'Category' schema is updated with an ownership field.
+    }
+
+    /**
+     * @description Secures the 'products' subcollection within a category.
+     * @path /categories/{categoryId}/products/{productId}
+     * @allow (get) Any user can get a product document.
+     * @allow (create) A signed-in user creates a new product, ensuring its categoryId matches the path.
+     * @deny (create) A user tries to create a product with a mismatched categoryId in its data.
+     * @deny (update, delete) Any user attempts to modify or delete a product.
+     * @principle Enforces relational integrity by ensuring a product is created within its correct parent category.
+     */
+    match /categories/{categoryId}/products/{productId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && hasMatchingId(productId) && belongsToCategory(categoryId);
+      allow update: if false; // TODO: Add owner validation once the 'Product' schema is updated with an ownership field.
+      allow delete: if false; // TODO: Add owner validation once the 'Product' schema is updated with an ownership field.
+    }
+
+    /**
+     * @description Secures the 'gradedRankings' subcollection for a product.
+     * @path /categories/{categoryId}/products/{productId}/gradedRankings/{gradedRankingId}
+     * @allow (get) Any user can get a graded ranking.
+     * @allow (create) A signed-in user creates a ranking, ensuring its productId matches the path.
+     * @deny (create) A user tries to create a ranking under the wrong product path.
+     * @deny (update, delete) Any user attempts to modify or delete a ranking.
+     * @principle Path consistency is enforced to ensure rankings are always associated with the correct product.
+     */
+    match /categories/{categoryId}/products/{productId}/gradedRankings/{gradedRankingId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && hasMatchingId(gradedRankingId) && belongsToProduct(productId);
+      allow update: if false; // TODO: Add owner validation once the 'GradedRanking' schema is updated with an ownership field.
+      allow delete: if false; // TODO: Add owner validation once the 'GradedRanking' schema is updated with an ownership field.
+    }
+
+    /**
+     * @description Secures the 'comparativeRankings' subcollection for a product.
+     * @path /categories/{categoryId}/products/{productId}/comparativeRankings/{comparativeRankingId}
+     * @allow (get) Any user can get a comparative ranking.
+     * @allow (create) A signed-in user creates a ranking, ensuring the product in the path is one of the two products being compared.
+     * @deny (create) A user tries to create a ranking where the product in the path is not part of the comparison.
+     * @deny (update, delete) Any user attempts to modify or delete a ranking.
+     * @principle Ensures logical consistency; a comparison must involve the product it is filed under.
+     */
+    match /categories/{categoryId}/products/{productId}/comparativeRankings/{comparativeRankingId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && hasMatchingId(comparativeRankingId) && isPartOfComparison(productId);
+      allow update: if false; // TODO: Add owner validation once the 'ComparativeRanking' schema is updated with an ownership field.
+      allow delete: if false; // TODO: Add owner validation once the 'ComparativeRanking' schema is updated with an ownership field.
+    }
+  }
+}

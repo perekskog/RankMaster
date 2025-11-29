@@ -1,0 +1,204 @@
+{
+  "entities": {
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a category of products.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Category entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the category."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a product within a category.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to Category. (Relationship: Category 1:N Product)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Text description of the product."
+        },
+        "pictureUrl": {
+          "type": "string",
+          "description": "URL of the product's picture.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "categoryId",
+        "description"
+      ]
+    },
+    "GradedRanking": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "GradedRanking",
+      "type": "object",
+      "description": "Represents a graded ranking of a product within a category.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the GradedRanking entity."
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to Product. (Relationship: Product 1:N GradedRanking)"
+        },
+        "grade": {
+          "type": "number",
+          "description": "The grade given to the product (e.g., 3, 5, or 7)."
+        }
+      },
+      "required": [
+        "id",
+        "productId",
+        "grade"
+      ]
+    },
+    "ComparativeRanking": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ComparativeRanking",
+      "type": "object",
+      "description": "Represents a comparative ranking between two products within a category.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ComparativeRanking entity."
+        },
+        "product1Id": {
+          "type": "string",
+          "description": "Reference to Product. First product in the comparison."
+        },
+        "product2Id": {
+          "type": "string",
+          "description": "Reference to Product. Second product in the comparison."
+        },
+        "winnerProductId": {
+          "type": "string",
+          "description": "Reference to Product. The product that won the comparison."
+        }
+      },
+      "required": [
+        "id",
+        "product1Id",
+        "product2Id",
+        "winnerProductId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "Stores product categories.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for the category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/categories/{categoryId}/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores products within a specific category.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for the category."
+            },
+            {
+              "name": "productId",
+              "description": "The unique identifier for the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/categories/{categoryId}/products/{productId}/gradedRankings/{gradedRankingId}",
+        "definition": {
+          "entityName": "GradedRanking",
+          "schema": {
+            "$ref": "#/backend/entities/GradedRanking"
+          },
+          "description": "Stores graded rankings for a specific product within a category.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for the category."
+            },
+            {
+              "name": "productId",
+              "description": "The unique identifier for the product."
+            },
+            {
+              "name": "gradedRankingId",
+              "description": "The unique identifier for the graded ranking."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/categories/{categoryId}/products/{productId}/comparativeRankings/{comparativeRankingId}",
+        "definition": {
+          "entityName": "ComparativeRanking",
+          "schema": {
+            "$ref": "#/backend/entities/ComparativeRanking"
+          },
+          "description": "Stores comparative rankings for a specific product within a category.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for the category."
+            },
+            {
+              "name": "productId",
+              "description": "The unique identifier for the product."
+            },
+            {
+              "name": "comparativeRankingId",
+              "description": "The unique identifier for the comparative ranking."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the RankMaster application's requirements for category and product ranking. It prioritizes authorization independence and enables secure list operations, adhering to the DBAC (Database-Based Access Control) principle. The structure segregates data based on access needs and employs consistent access modeling patterns.\n\n*   **Categories:** Categories are stored in the `/categories` collection. Since only empty categories can be deleted, we don't need extra security rules related to deletion, but we make sure that a category contains a category ID. This also helps with predictable paths and invariants.\n*   **Products:** Products are stored in a subcollection `/categories/{categoryId}/products`. This allows efficient querying of products within a specific category and establishes a clear ownership hierarchy.\n*   **Graded Rankings:** Graded rankings are stored in a subcollection `/categories/{categoryId}/products/{productId}/gradedRankings`. This continues the path-based ownership and simplifies security rules by isolating the graded rankings to their respective products.\n*   **Comparative Rankings:** Comparative rankings are stored in a subcollection `/categories/{categoryId}/products/{productId}/comparativeRankings`. This ensures that each ranking is tied to a product within a specific category.\n\n**Authorization Independence:** The structure avoids hierarchical authorization dependencies (`get()`) by not relying on parent document data for subcollection access. Security rules can directly check the user's authentication status (`request.auth.uid`) without needing to retrieve parent category or product data. For example, security rules for `/categories/{categoryId}/products/{productId}/gradedRankings` can focus solely on the user's ability to create or modify rankings without needing to verify category ownership.\n\n**QAPs (Rules are not Filters):** The structure supports secure list operations by segregating data based on access needs. Listing products, graded rankings, or comparative rankings within a category is secured by ensuring that the user has access to the respective collection or subcollection. The use of path-based ownership (`/categories/{categoryId}/products/{productId}/gradedRankings`) inherently limits list operations to authorized users who have access to the specified category and product."
+  }
+}
