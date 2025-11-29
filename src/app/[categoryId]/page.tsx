@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, PlusCircle, Scale, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,8 @@ const calculateScores = (products: WithId<Product>[], gradedRanks: WithId<Graded
   }).sort((a, b) => b.score - a.score);
 };
 
-export default function CategoryPage({ params: { categoryId } }: { params: { categoryId: string } }) {
+export default function CategoryPage({ params }: { params: Promise<{ categoryId: string }> }) {
+  const { categoryId } = React.use(params);  // unwrap params
   const { toast } = useToast();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
