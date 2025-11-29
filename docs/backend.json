@@ -117,6 +117,35 @@
         "winnerProductId",
         "loserProductId"
       ]
+    },
+    "ProductRank": {
+      "title": "ProductRank",
+      "type": "object",
+      "description": "Stores the calculated rank for a product within a category.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Combination of categoryId and productId."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "ID of the category."
+        },
+        "productId": {
+          "type": "string",
+          "description": "ID of the product."
+        },
+        "score": {
+          "type": "number",
+          "description": "The combined ranking score."
+        }
+      },
+      "required": [
+        "id",
+        "categoryId",
+        "productId",
+        "score"
+      ]
     }
   },
   "auth": {
@@ -148,6 +177,12 @@
         "$ref": "#/entities/ComparativeRank"
       },
       "description": "Stores all comparative rankings, queryable by categoryId."
+    },
+    "/productRanks/{rankId}": {
+      "schema": {
+        "$ref": "#/entities/ProductRank"
+      },
+      "description": "Stores the calculated ranks for products."
     }
   }
 }
